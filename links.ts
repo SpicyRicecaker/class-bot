@@ -2,12 +2,11 @@
 // import filereader and path
 import { studentClass } from "./types/types.d.ts";
 
-const jsonPath = "links.json";
+const jsonPath = "info.json";
 
 const readStudentClasses = async (
   filePath: string,
 ): Promise<studentClass[]> => {
-  console.log(filePath);
   const decoder = new TextDecoder("utf-8");
   return JSON.parse(decoder.decode(await Deno.readFile(filePath)));
 };

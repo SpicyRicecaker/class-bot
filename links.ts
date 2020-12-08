@@ -6,9 +6,6 @@ const jsonPath = "info.json";
 
 const readStudentClasses = async (
   filePath: string,
-): Promise<studentClass[]> => {
-  const decoder = new TextDecoder("utf-8");
-  return JSON.parse(decoder.decode(await Deno.readFile(filePath)));
-};
+): Promise<studentClass[]> => JSON.parse(await Deno.readTextFile(filePath));
 
 export default { jsonPath, readStudentClasses };

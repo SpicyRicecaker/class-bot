@@ -2,6 +2,11 @@ import week from "./days.ts";
 import linker from "./links.ts";
 import { studentClass } from "./types/types.d.ts";
 
+const isSameDay = (a: Date, b: Date): boolean => (
+  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate()
+);
+
 // parse and compare minute hour string
 // given hours and minutes of the form
 const isInsideTime = (start: string, end: string, date: Date): boolean => {
@@ -35,6 +40,17 @@ const openAllForms = (process: string, classes: studentClass[]) => {
 };
 
 const main = async () => {
+  let pastOpened: Date;
+  // Try to read file for date
+  try {
+    pastOpened = new Date(JSON.parse(await Deno.readTextFile("date.json")).date);
+  } catch (e) {
+    // Make new date that isn't today
+    pastOpened = new Date();
+    pastOpened.setDate(pastOpened.getDate() - 1);
+    await Deno.writeTextFile("date.json", JSON.stringify({ date: pastOpened }));
+  }
+
   let date: Date = new Date();
   const day: string = week.get(date.getDay());
 
@@ -49,7 +65,10 @@ const main = async () => {
   let currentClassName: string;
 
   // First open all attendance for classes today
-  openAllForms(Deno.args[0], classesToday);
+  if (!isSameDay(pastOpened, date)) {
+    openAllForms(Deno.args[0], classesToday);
+    await Deno.writeTextFile("date.json", JSON.stringify({ date: date }));
+  }
 
   const tick = () => {
     // Update date

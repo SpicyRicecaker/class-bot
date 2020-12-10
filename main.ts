@@ -77,7 +77,6 @@ const main = async () => {
     if (week.get(date.getDay()) !== day) {
       return main();
     }
-
     // Filter classes today to find one that matches current date and time
     const classrn = classesToday.filter((value) =>
       isInsideTime(value.start, value.end, date)

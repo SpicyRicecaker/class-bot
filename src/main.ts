@@ -1,11 +1,5 @@
 import week from "./days.ts";
-import linker from "./links.ts";
-import { studentClass } from "./types/types.d.ts";
-
-const isSameDay = (a: Date, b: Date): boolean => (
-  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() &&
-  a.getDate() === b.getDate()
-);
+import ClassDB from "./classDB.ts";
 
 // parse and compare minute hour string
 // given hours and minutes of the form
@@ -31,55 +25,26 @@ const openZoomLink = (process: string, link: string) => {
   });
 };
 
-const openAllForms = (process: string, classes: studentClass[]) => {
-  const command: string[] = [process];
-  for (let i = 0; i < classes.length; ++i) {
-    command.push(classes[i].form);
-  }
-  Deno.run({ cmd: command });
-};
-
 const main = async () => {
-  let pastOpened: Date;
-  // Try to read file for date
-  try {
-    pastOpened = new Date(JSON.parse(await Deno.readTextFile("date.json")).date);
-  } catch (e) {
-    // Make new date that isn't today
-    pastOpened = new Date();
-    pastOpened.setDate(pastOpened.getDate() - 1);
-    await Deno.writeTextFile("date.json", JSON.stringify({ date: pastOpened }));
-  }
+  // First get today's date
+  let today = new Date();
 
-  let date: Date = new Date();
-  const day: string = week.get(date.getDay());
+  // Compile our classes database
+  const classDB = new ClassDB();
+  await classDB.init();
 
-  // Get all classes from json
-  const classesAll: studentClass[] = await linker.readStudentClasses(
-    linker.jsonPath,
-  );
-  // Get classes today
-  const classesToday = classesAll.filter((value) =>
-    value.schedule.includes(day)
-  );
+  // Watch current class name
   let currentClassName: string;
 
-  // First open all attendance for classes today
-  if (!isSameDay(pastOpened, date)) {
-    openAllForms(Deno.args[0], classesToday);
-    await Deno.writeTextFile("date.json", JSON.stringify({ date: date }));
-  }
+  // Watch classes today
+  const classesToday = classDB.getClassesToday(week.get(today.getDay()));
 
   const tick = () => {
     // Update date
-    date = new Date();
-    // If new day restart program
-    if (week.get(date.getDay()) !== day) {
-      return main();
-    }
+    today = new Date();
     // Filter classes today to find one that matches current date and time
     const classrn = classesToday.filter((value) =>
-      isInsideTime(value.start, value.end, date)
+      isInsideTime(value.start, value.end, today)
     );
     // Open the zoom link for the class if there is one
     for (let i = 0; i < classrn.length; ++i) {

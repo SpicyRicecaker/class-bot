@@ -1,4 +1,4 @@
-export declare interface studentClass {
+export interface studentClass {
   name: string;
   class: string;
   form: string;

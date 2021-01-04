@@ -1,1 +1,1 @@
-deno run --allow-read --allow-run --allow-write main.ts "C:\Program Files\Mozilla Firefox\firefox.exe" 9
+deno run --allow-read --allow-run --allow-write src/main.ts "C:\Program Files\Mozilla Firefox\firefox.exe" 9

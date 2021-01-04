@@ -1,5 +1,6 @@
 class Days {
   map: Map<number, string>;
+  
   constructor() {
     this.map = new Map();
     this.map.set(0, "Sunday");
@@ -10,9 +11,10 @@ class Days {
     this.map.set(5, "Friday");
     this.map.set(6, "Saturday");
   }
+
   get = (key: number): string => {
     const t = this.map.get(key);
-    return t ? t : "Sunday";
+    return t || "Sunday";
   };
 }
 
